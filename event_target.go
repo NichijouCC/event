@@ -34,7 +34,7 @@ func (e *EvenTarget) Once(listener interface{}) error {
 	if err := isValidListener(listener); err != nil {
 		return err
 	}
-	e.listeners = append(e.listeners, &eventListener{callback: reflect.ValueOf(listener)})
+	e.listeners = append(e.listeners, &eventListener{callback: reflect.ValueOf(listener),once: true})
 	return nil
 }
 
@@ -44,7 +44,7 @@ func (e *EvenTarget) Off(listener interface{}) error {
 	}
 	rv := reflect.ValueOf(listener)
 	for index, el := range e.listeners {
-		if el.callback == rv {
+		if el.callback.Pointer() == rv.Pointer() {
 			e.listeners = append(e.listeners[:index], e.listeners[index+1:]...)
 			return nil
 		}
@@ -53,7 +53,7 @@ func (e *EvenTarget) Off(listener interface{}) error {
 }
 
 func (e *EvenTarget) Emit(args ...interface{}) {
-	reflectedArgs := argsToReflectValues(args)
+	reflectedArgs := argsToReflectValues(args...)
 	for i := 0; i < len(e.listeners); i++ {
 		e.listeners[i].callback.Call(reflectedArgs)
 		if e.listeners[i].once {

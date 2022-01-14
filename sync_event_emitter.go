@@ -22,12 +22,9 @@ func (t *wrapSyncEventTarget) Init()  {
 
 
 func (s *SyncEventEmitter) findOrCreateTarget(event string) *wrapSyncEventTarget {
-	target,ok:=s.listeners.Load(event)
-	if !ok {
-		target,loaded:=s.listeners.LoadOrStore(event,&wrapSyncEventTarget{})
-		if !loaded {
-			target.(*wrapSyncEventTarget).Init()
-		}
+	target,loaded:=s.listeners.LoadOrStore(event,&wrapSyncEventTarget{})
+	if !loaded {
+		target.(*wrapSyncEventTarget).Init()
 	}
 	return target.(*wrapSyncEventTarget)
 }

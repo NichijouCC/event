@@ -90,7 +90,7 @@ func (e *EventEmitter) RemoveAllListeners(events ...string) {
 }
 
 func (e *EventEmitter) Emit(event string, args ...interface{}) {
-	reflectedArgs := argsToReflectValues(args)
+	reflectedArgs := argsToReflectValues(args...)
 	if list, ok := e.listeners[event]; ok {
 		for i := 0; i < len(list); i++ {
 			list[i].callback.Call(reflectedArgs)

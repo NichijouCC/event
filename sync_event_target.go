@@ -51,12 +51,11 @@ func (s *SyncEventTarget) Off(listener interface{}) error {
 		s.lisMu.Lock()
 		defer s.lisMu.Unlock()
 		for index, el := range s.listeners {
-			if el == rv {
+			if el.Pointer() == rv.Pointer() {
 				s.listeners = append(s.listeners[:index], s.listeners[index+1:]...)
 				break
 			}
 		}
-		s.lisMu.Unlock()
 	}()
 
 	if atomic.LoadInt32(&s.onceLen) > 0 {
@@ -64,7 +63,7 @@ func (s *SyncEventTarget) Off(listener interface{}) error {
 			s.onceMu.Lock()
 			defer s.onceMu.Unlock()
 			for index, el := range s.onceListeners {
-				if el == rv {
+				if el.Pointer() == rv.Pointer() {
 					s.onceListeners = append(s.onceListeners[:index], s.onceListeners[index+1:]...)
 					atomic.AddInt32(&s.onceLen, -1)
 					break
@@ -76,7 +75,7 @@ func (s *SyncEventTarget) Off(listener interface{}) error {
 }
 
 func (s *SyncEventTarget) Emit(args ...interface{}) {
-	reflectedArgs := argsToReflectValues(args)
+	reflectedArgs := argsToReflectValues(args...)
 
 	func() {
 		s.lisMu.RLock()
